@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:5000/api", // Backend API base URL
+  baseURL: "https://smart-delivery-management-backend.onrender.com/api", // Backend API base URL
   headers: {
     "Content-Type": "application/json",
   },
