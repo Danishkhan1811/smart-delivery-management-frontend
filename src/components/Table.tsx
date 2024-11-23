@@ -26,7 +26,7 @@ const Table = <T extends { _id: string }>({
                 {header}
               </th>
             ))}
-            {(onEdit || onDelete) && (
+            {(onEdit || onDelete) && !headers.includes("Actions") && (
               <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">
                 Actions
               </th>

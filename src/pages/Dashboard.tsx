@@ -394,7 +394,8 @@ const Dashboard: React.FC = () => {
       )}
 
       {/* Failure Reasons Chart for Assignments */}
-      {assignmentMetrics && (
+      {
+      assignmentMetrics && (
         <div className="bg-white p-4 shadow-md rounded-lg space-y-4">
           <h3 className="text-lg font-semibold">Failure Reasons</h3>
           <Bar
@@ -423,7 +424,8 @@ const Dashboard: React.FC = () => {
             }}
           />
         </div>
-      )}
+      )
+      }
     </div>
   );
 };
