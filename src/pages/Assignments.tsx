@@ -2,12 +2,34 @@ import React, { useEffect, useState } from "react";
 import Table from "../components/Table";
 import apiClient from "../utils/apiClient";
 
-interface Assignment {
+interface Customer {
+  name: string;
+  phone: string;
+  address: string;
+}
+
+interface OrderId {
+  customer: Customer;
   _id: string;
   orderNumber: string;
-  partnerName: string;
+  area: string;
   status: string;
-  failureReason?: string;
+}
+
+interface PartnerId {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+interface Assignment {
+  _id: string;
+  orderId: OrderId;
+  partnerId: PartnerId;
+  timestamp: string;
+  status: string;
+  reason: string | null;
 }
 
 interface PartnerMetrics {
@@ -50,7 +72,7 @@ const Assignments: React.FC = () => {
   // Fetch individual partner metrics
   const fetchPartnerMetrics = async () => {
     try {
-      const partners = [...new Set(assignments.map((assignment) => assignment.partnerName))]; // Get unique partner names
+      const partners = [...new Set(assignments.map((assignment) => assignment.partnerId.name))]; // Updated to use correct path
       const metricsPromises = partners.map((partnerName) =>
         apiClient.get(`/assignments/partner/${partnerName}/metrics`)
       );
@@ -151,10 +173,10 @@ const Assignments: React.FC = () => {
         headers={["Order Number", "Partner", "Status", "Failure Reason", "Actions"]}
         data={filteredAssignments.map((assignment) => ({
           _id: assignment._id,
-          orderNumber: assignment.orderNumber,
-          partnerName: assignment.partnerName,
+          orderNumber: assignment.orderId.orderNumber,
+          partnerName: assignment.partnerId.name,
           status: assignment.status,
-          failureReason: assignment.failureReason || "N/A",
+          failureReason: assignment.reason || "N/A",
         }))}
         onDelete={(id) => {
           console.log("Delete assignment with _id:", id);
