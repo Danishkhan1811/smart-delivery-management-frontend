@@ -38,11 +38,16 @@ const Dashboard: React.FC = () => {
     const fetchAssignmentMetrics = async () => {
       try {
         const response = await apiClient.get("/metrics");
-        setAssignmentMetrics(response.data);
+        const metricsArray: AssignmentMetrics[] = response.data; // Assuming response is an array
+        if (metricsArray.length > 0) {
+          setAssignmentMetrics(metricsArray[0]); // Use the first metric or process accordingly
+        } else {
+          console.error("No metrics available.");
+        }
       } catch (error) {
         console.error("Error fetching assignment metrics:", error);
       }
-    };
+    };    
 
     const fetchPartnerMetrics = async () => {
       try {
@@ -100,43 +105,6 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6 p-6">
       <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
 
-      {/* Assignment Metrics */}
-      {assignmentMetrics && (
-        <div className="bg-white p-4 shadow-md rounded-lg space-y-4">
-          <h2 className="text-xl font-bold text-gray-700">Assignment Metrics</h2>
-          <Line
-            data={{
-              labels: ["Success", "Failure"],
-              datasets: [
-                {
-                  label: "Assignment Rates",
-                  data: [assignmentMetrics.successRate, assignmentMetrics.failureRate],
-                  backgroundColor: [
-                    "rgba(75, 192, 192, 0.6)",
-                    "rgba(255, 99, 132, 0.6)",
-                  ],
-                  borderColor: [
-                    "rgba(75, 192, 192, 1)",
-                    "rgba(255, 99, 132,                     1)",
-                  ],
-                  borderWidth: 1,
-                },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: { display: true },
-              },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                },
-              },
-            }}
-          />
-        </div>
-      )}
 
       {/* Partner Metrics */}
       {partnerMetrics && (

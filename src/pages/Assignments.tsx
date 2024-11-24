@@ -41,9 +41,6 @@ interface PartnerMetrics {
 
 const Assignments: React.FC = () => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [globalSuccessRate, setGlobalSuccessRate] = useState<number>(0);
-  const [globalFailureRate, setGlobalFailureRate] = useState<number>(0);
-  const [globalFailureReasons, setGlobalFailureReasons] = useState<Record<string, number>>({});
   const [partnerMetrics, setPartnerMetrics] = useState<PartnerMetrics[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>("");
 
@@ -57,32 +54,6 @@ const Assignments: React.FC = () => {
     }
   };
 
-  // Fetch global metrics (success rate, failure rate, and failure reasons)
-  const fetchGlobalMetrics = async () => {
-    try {
-      const response = await apiClient.get("/metrics");
-      setGlobalSuccessRate(response.data.successRate);
-      setGlobalFailureRate(response.data.failureRate);
-      setGlobalFailureReasons(response.data.failureReasons);
-    } catch (error) {
-      console.error("Error fetching global metrics:", error);
-    }
-  };
-
-  // // Fetch individual partner metrics
-  // const fetchPartnerMetrics = async () => {
-  //   try {
-  //     const partners = [...new Set(assignments.map((assignment) => assignment.partnerId?.name).filter(Boolean))];
-  //     const metricsPromises = partners.map((partnerName) =>
-  //       apiClient.get(`/assignments/partner/${partnerName}/metrics`)
-  //     );
-  //     const metricsResponses = await Promise.all(metricsPromises);
-  //     setPartnerMetrics(metricsResponses.map((res) => res.data));
-  //   } catch (error) {
-  //     console.error("Error fetching partner metrics:", error);
-  //   }
-  // };
-  
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilterStatus(e.target.value);
@@ -90,14 +61,7 @@ const Assignments: React.FC = () => {
 
   useEffect(() => {
     fetchAssignments();
-    fetchGlobalMetrics();
   }, []);
-
-  useEffect(() => {
-    if (assignments.length > 0) {
-      // fetchPartnerMetrics();
-    }
-  }, [assignments]);
 
   const filteredAssignments = filterStatus
     ? assignments.filter((assignment) => assignment.status === filterStatus)
@@ -107,25 +71,6 @@ const Assignments: React.FC = () => {
     <div className="space-y-4">
       <h1 className="text-2xl font-bold text-gray-800">Assignments</h1>
 
-      {/* Global Metrics */}
-      <div className="space-y-2">
-        <div>
-          <strong>Global Success Rate:</strong> {globalSuccessRate}%
-        </div>
-        <div>
-          <strong>Global Failure Rate:</strong> {globalFailureRate}%
-        </div>
-        <div>
-          <strong>Global Failure Reasons:</strong>
-          <ul>
-            {Object.entries(globalFailureReasons).map(([reason, count]) => (
-              <li key={reason}>
-                {reason}: {count} assignments
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
 
       {/* Filter Dropdown */}
       <div className="flex items-center space-x-4">
