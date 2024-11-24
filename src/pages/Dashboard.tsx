@@ -33,31 +33,30 @@ const Dashboard: React.FC = () => {
   const [assignmentMetrics, setAssignmentMetrics] = useState<AssignmentMetrics | null>(null);
   const [partnerMetrics, setPartnerMetrics] = useState<PartnerMetrics | null>(null);
   const [orderMetrics, setOrderMetrics] = useState<OrderMetrics | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // State to track loading status
 
   useEffect(() => {
     const fetchAssignmentMetrics = async () => {
       try {
         const response = await apiClient.get("/metrics");
-        const metricsArray: AssignmentMetrics[] = response.data; // Assuming response is an array
+        const metricsArray: AssignmentMetrics[] = response.data;
         if (metricsArray.length > 0) {
-          setAssignmentMetrics(metricsArray[0]); // Use the first metric or process accordingly
+          setAssignmentMetrics(metricsArray[0]);
         } else {
           console.error("No metrics available.");
         }
       } catch (error) {
         console.error("Error fetching assignment metrics:", error);
       }
-    };    
+    };
 
     const fetchPartnerMetrics = async () => {
       try {
         const response = await apiClient.get("/partners");
         const partners = response.data;
-
         const totalPartners = partners.length;
         const activePartners = partners.filter((partner: any) => partner.status === "active").length;
         const averageRating = partners.reduce((sum: number, partner: any) => sum + partner.metrics.rating, 0) / totalPartners;
-
         const totalCompletedOrders = partners.reduce((sum: number, partner: any) => sum + partner.metrics.completedOrders, 0);
         const totalCancelledOrders = partners.reduce((sum: number, partner: any) => sum + partner.metrics.cancelledOrders, 0);
 
@@ -99,12 +98,23 @@ const Dashboard: React.FC = () => {
     fetchAssignmentMetrics();
     fetchPartnerMetrics();
     fetchOrderMetrics();
+
+    setIsLoading(false); // Set loading to false once all data is fetched
   }, []);
 
+  if (isLoading || !assignmentMetrics || !partnerMetrics || !orderMetrics) {
+    return (
+      <div className="p-6 text-center bg-white shadow-md rounded-lg space-y-4 text-[20px] font-[500]">
+        <p>If the content does not load automatically, click the below link to get the backend up and running, then refresh the page</p>
+        <p className="text-blue-500"><a href="https://smart-delivery-management-backend.onrender.com/" rel="noreferrer" target="_blank">Smart Delivery Management Backend</a></p>
+      </div>
+    );
+  }
+
   return (
+    
     <div className="space-y-6 p-6">
       <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-
 
       {/* Partner Metrics */}
       {partnerMetrics && (
@@ -120,80 +130,77 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
-      {/* This is the div where i want you to make changes */}
-      <div className="flex justify-between">    
-      {/* Order Metrics */}
-      {orderMetrics && (
-        <div className="bg-white p-4 shadow-md rounded-lg space-y-4 w-[64%]">
-          <h2 className="text-xl font-bold text-gray-700">Order Metrics</h2>
-          <div className="grid grid-cols-4 gap-4">
-            <div>Total Orders: {orderMetrics.totalOrders}</div>
-            <div>Pending Orders: {orderMetrics.pendingOrders}</div>
-            <div>Completed Orders: {orderMetrics.completedOrders}</div>
-            <div>Picked Orders: {orderMetrics.pickedOrders}</div>
-            <div>Total Sales: ${orderMetrics.totalSales.toFixed(2)}</div>
+      <div className="flex justify-between">
+        {/* Order Metrics */}
+        {orderMetrics && (
+          <div className="bg-white p-4 shadow-md rounded-lg space-y-4 w-[64%]">
+            <h2 className="text-xl font-bold text-gray-700">Order Metrics</h2>
+            <div className="grid grid-cols-4 gap-4">
+              <div>Total Orders: {orderMetrics.totalOrders}</div>
+              <div>Pending Orders: {orderMetrics.pendingOrders}</div>
+              <div>Completed Orders: {orderMetrics.completedOrders}</div>
+              <div>Picked Orders: {orderMetrics.pickedOrders}</div>
+              <div>Total Sales: ${orderMetrics.totalSales.toFixed(2)}</div>
+            </div>
+            {/* Bar Chart for Order Status */}
+            <Bar
+              data={{
+                labels: ['Pending', 'Completed', 'Picked'],
+                datasets: [
+                  {
+                    label: 'Order Status',
+                    data: [orderMetrics.pendingOrders, orderMetrics.completedOrders, orderMetrics.pickedOrders],
+                    backgroundColor: ['rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
+                    borderColor: ['rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                    borderWidth: 1,
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: { display: true },
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
+              }}
+            />
           </div>
-          {/* Bar Chart for Order Status */}
-          <Bar
-            data={{
-              labels: ['Pending', 'Completed', 'Picked'],
-              datasets: [
-                {
-                  label: 'Order Status',
-                  data: [orderMetrics.pendingOrders, orderMetrics.completedOrders, orderMetrics.pickedOrders],
-                  backgroundColor: ['rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
-                  borderColor: ['rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
-                  borderWidth: 1,
-                },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: { display: true },
-              },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                },
-              },
-            }}
-          />
-        </div>
-      )}
+        )}
 
-      {/* Pie Chart for Completed vs Cancelled Orders */}
-      {partnerMetrics && (
-        <div className="bg-white p-4 shadow-md rounded-lg space-y-4 w-[34%]">
-          <h2 className="text-xl font-bold text-gray-700">Completed vs Cancelled Orders</h2>
-          <Pie
-            data={{
-              labels: ['Completed Orders', 'Cancelled Orders'],
-              datasets: [
-                {
-                  label: 'Order Distribution',
-                  data: [partnerMetrics.totalCompletedOrders, partnerMetrics.totalCancelledOrders],
-                  backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
-                  borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
-                  borderWidth: 1,
+        {/* Pie Chart for Completed vs Cancelled Orders */}
+        {partnerMetrics && (
+          <div className="bg-white p-4 shadow-md rounded-lg space-y-4 w-[34%]">
+            <h2 className="text-xl font-bold text-gray-700">Completed vs Cancelled Orders</h2>
+            <Pie
+              data={{
+                labels: ['Completed Orders', 'Cancelled Orders'],
+                datasets: [
+                  {
+                    label: 'Order Distribution',
+                    data: [partnerMetrics.totalCompletedOrders, partnerMetrics.totalCancelledOrders],
+                    backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+                    borderWidth: 1,
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: { display: true },
                 },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: { display: true },
-              },
-            }}
-          />
-        </div>
-      )}
+              }}
+            />
+          </div>
+        )}
       </div>
 
-
       {/* Failure Reasons Chart for Assignments */}
-      {
-      assignmentMetrics && (
+      {assignmentMetrics && (
         <div className="bg-white p-4 shadow-md rounded-lg space-y-4">
           <h3 className="text-lg font-semibold">Failure Reasons</h3>
           <Bar
@@ -222,8 +229,7 @@ const Dashboard: React.FC = () => {
             }}
           />
         </div>
-      )
-      }
+      )}
     </div>
   );
 };
