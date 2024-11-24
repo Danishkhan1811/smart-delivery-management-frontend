@@ -72,7 +72,7 @@ const Assignments: React.FC = () => {
   // Fetch individual partner metrics
   const fetchPartnerMetrics = async () => {
     try {
-      const partners = [...new Set(assignments.map((assignment) => assignment.partnerId.name))]; // Updated to use correct path
+      const partners = [...new Set(assignments.map((assignment) => assignment.partnerId?.name).filter(Boolean))];
       const metricsPromises = partners.map((partnerName) =>
         apiClient.get(`/assignments/partner/${partnerName}/metrics`)
       );
@@ -82,6 +82,7 @@ const Assignments: React.FC = () => {
       console.error("Error fetching partner metrics:", error);
     }
   };
+  
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilterStatus(e.target.value);
@@ -174,7 +175,8 @@ const Assignments: React.FC = () => {
         data={filteredAssignments.map((assignment) => ({
           _id: assignment._id,
           orderNumber: assignment.orderId.orderNumber,
-          partnerName: assignment.partnerId.name,
+          // partnerName: assignment.partnerId.name,
+          partnerName: assignment.partnerId?.name || "Unknown Partner",
           status: assignment.status,
           failureReason: assignment.reason || "N/A",
         }))}

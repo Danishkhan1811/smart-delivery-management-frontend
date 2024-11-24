@@ -326,9 +326,11 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
+      {/* This is the div where i want you to make changes */}
+      <div className="flex justify-between">    
       {/* Order Metrics */}
       {orderMetrics && (
-        <div className="bg-white p-4 shadow-md rounded-lg space-y-4">
+        <div className="bg-white p-4 shadow-md rounded-lg space-y-4 w-[64%]">
           <h2 className="text-xl font-bold text-gray-700">Order Metrics</h2>
           <div className="grid grid-cols-4 gap-4">
             <div>Total Orders: {orderMetrics.totalOrders}</div>
@@ -368,7 +370,7 @@ const Dashboard: React.FC = () => {
 
       {/* Pie Chart for Completed vs Cancelled Orders */}
       {partnerMetrics && (
-        <div className="bg-white p-4 shadow-md rounded-lg space-y-4">
+        <div className="bg-white p-4 shadow-md rounded-lg space-y-4 w-[34%]">
           <h2 className="text-xl font-bold text-gray-700">Completed vs Cancelled Orders</h2>
           <Pie
             data={{
@@ -392,6 +394,8 @@ const Dashboard: React.FC = () => {
           />
         </div>
       )}
+      </div>
+
 
       {/* Failure Reasons Chart for Assignments */}
       {
