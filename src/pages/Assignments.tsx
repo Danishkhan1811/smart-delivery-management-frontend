@@ -60,7 +60,7 @@ const Assignments: React.FC = () => {
   // Fetch global metrics (success rate, failure rate, and failure reasons)
   const fetchGlobalMetrics = async () => {
     try {
-      const response = await apiClient.get("/assignments/metrics");
+      const response = await apiClient.get("/metrics");
       setGlobalSuccessRate(response.data.successRate);
       setGlobalFailureRate(response.data.failureRate);
       setGlobalFailureReasons(response.data.failureReasons);
@@ -69,19 +69,19 @@ const Assignments: React.FC = () => {
     }
   };
 
-  // Fetch individual partner metrics
-  const fetchPartnerMetrics = async () => {
-    try {
-      const partners = [...new Set(assignments.map((assignment) => assignment.partnerId?.name).filter(Boolean))];
-      const metricsPromises = partners.map((partnerName) =>
-        apiClient.get(`/assignments/partner/${partnerName}/metrics`)
-      );
-      const metricsResponses = await Promise.all(metricsPromises);
-      setPartnerMetrics(metricsResponses.map((res) => res.data));
-    } catch (error) {
-      console.error("Error fetching partner metrics:", error);
-    }
-  };
+  // // Fetch individual partner metrics
+  // const fetchPartnerMetrics = async () => {
+  //   try {
+  //     const partners = [...new Set(assignments.map((assignment) => assignment.partnerId?.name).filter(Boolean))];
+  //     const metricsPromises = partners.map((partnerName) =>
+  //       apiClient.get(`/assignments/partner/${partnerName}/metrics`)
+  //     );
+  //     const metricsResponses = await Promise.all(metricsPromises);
+  //     setPartnerMetrics(metricsResponses.map((res) => res.data));
+  //   } catch (error) {
+  //     console.error("Error fetching partner metrics:", error);
+  //   }
+  // };
   
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -95,7 +95,7 @@ const Assignments: React.FC = () => {
 
   useEffect(() => {
     if (assignments.length > 0) {
-      fetchPartnerMetrics();
+      // fetchPartnerMetrics();
     }
   }, [assignments]);
 
